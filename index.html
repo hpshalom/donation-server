@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Help Support HP Shalom</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Arial:400,700&display=swap">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fffaf5;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .donation-container {
+      width: 320px;
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 16px;
+      font-size: 20px;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .subscription {
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: #555;
+      text-align: left;
+    }
+    .applepay-btn, .card-btn {
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      padding: 10px;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .applepay-btn {
+      background-color: #000;
+    }
+    .card-btn {
+      background-color: #ff7f2a;
+    }
+    .footer {
+      font-size: 12px;
+      color: #555;
+      margin-top: 16px;
+    }
+    .paypal-secure {
+      font-size: 13px;
+      color: #4caf50;
+      margin-top: 4px;
+      font-weight: bold;
+    }
+    .paypal-logo {
+      height: 18px;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="donation-container">
+    <h2>Help Support HP Shalom</h2>
+    <label for="donationAmount">Donation amount:</label>
+    <input type="number" id="donationAmount" placeholder="USD" required />
+
+    <div class="subscription">
+      <input type="checkbox" id="monthlySubscription" />
+      <label for="monthlySubscription">Make this a monthly subscription</label>
+    </div>
+
+    <button class="applepay-btn">Apple Pay</button>
+    <button class="card-btn">Credit/Debit Card</button>
+
+    <div id="paypal-button-container" style="margin-top: 12px;"></div>
+
+    <div class="footer">
+      <img class="paypal-logo" src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" alt="PayPal" />
+      Powered by PayPal
+      <div class="paypal-secure">Secure Payment 🔒</div>
+    </div>
+  </div>
+
+  <!-- PayPal SDK -->
+  <script src="https://www.paypal.com/sdk/js?client-id=AagG3jIxf9xqokUByqHm0vf-gHqYV7TDMDR5ic-sTi5dW0rZ_YEglJN1FpGD0K6gWitc7GwmNiem9kf1&currency=USD&vault=true"></script>
+
+  <script>
+    paypal.Buttons({
+      createSubscription: function (data, actions) {
+        const amount = document.getElementById("donationAmount").value;
+        const monthly = document.getElementById("monthlySubscription").checked;
+
+        if (monthly) {
+          return actions.subscription.create({
+            plan_id: 'P-0S2781791B568991GM7XPSKA' // Replace with your actual PayPal Plan ID
+          });
+        } else {
+          if (!amount) {
+            alert("Please enter a donation amount.");
+            return;
+          }
+          return actions.order.create({
+            purchase_units: [{ amount: { value: amount } }]
+          });
+        }
+      },
+      onApprove: function (data, actions) {
+        if (data.subscriptionID) {
+          alert("Thank you for your monthly support! Subscription ID: " + data.subscriptionID);
+        } else {
+          return actions.order.capture().then(function (details) {
+            alert("Donation successful! Thank you, " + details.payer.name.given_name + ".");
+          });
+        }
+      }
+    }).render("#paypal-button-container");
+  </script>
+</body>
+</html>
